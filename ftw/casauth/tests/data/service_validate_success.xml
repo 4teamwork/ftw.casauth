@@ -1,0 +1,12 @@
+<cas:serviceResponse xmlns:cas="http://www.yale.edu/tp/cas">
+  <cas:authenticationSuccess>
+    <cas:user>james</cas:user>
+    <cas:attributes>
+      <cas:authenticationDate>2014-08-12T19:28:07Z</cas:authenticationDate>
+      <cas:longTermAuthenticationRequestTokenUsed>false</cas:longTermAuthenticationRequestTokenUsed>
+      <cas:isFromNewLogin>true</cas:isFromNewLogin>
+      <cas:email>james.bond@sis.uk.gov</cas:email>
+      <cas:fullname>James Bond</cas:fullname>
+    </cas:attributes>
+  </cas:authenticationSuccess>
+</cas:serviceResponse>
