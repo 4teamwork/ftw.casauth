@@ -65,7 +65,7 @@ class CASAuthenticationPlugin(BasePlugin):
         response.redirect('%s/login?service=%s' % (
             self.cas_server_url,
             urllib.quote(request.getURL()),
-        ), trusted=True)
+        ), lock=True)
         return True
 
     security.declarePrivate('extractCredentials')

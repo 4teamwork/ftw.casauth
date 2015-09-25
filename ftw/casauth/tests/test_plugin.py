@@ -1,5 +1,4 @@
 from ftw.casauth.testing import FTW_CASAUTH_INTEGRATION_TESTING
-from zope.publisher.browser import TestRequest
 from plone.app.testing import TEST_USER_ID
 from mock import patch
 import unittest
@@ -11,45 +10,40 @@ class TestCASAuthPlugin(unittest.TestCase):
 
     def setUp(self):
         self.plugin = self.layer['plugin']
+        self.request = self.layer['request']
 
     def test_challenge_redirects_to_cas(self):
-        request = TestRequest()
-        response = request.response
-        self.plugin.challenge(request, response)
+        response = self.request.response
+        self.plugin.challenge(self.request, response)
 
         self.assertEqual(302, response.getStatus())
         self.assertEqual(
-            'https://cas.domain.net/login?service=http%3A//127.0.0.1',
+            'https://cas.domain.net/login?service=http%3A//nohost',
             response.getHeader('Location'))
 
     def test_challenge_doesnt_redirect_with_ticket(self):
-        request = TestRequest()
-        request.form.update(dict(ticket='ST-001-abc'))
-        response = request.response
-        self.plugin.challenge(request, response)
+        self.request.form.update(dict(ticket='ST-001-abc'))
+        response = self.request.response
+        self.plugin.challenge(self.request, response)
 
-        self.assertEqual(599, response.getStatus())
+        self.assertEqual(200, response.getStatus())
 
     def test_extract_credentials_returns_ticket(self):
-        request = TestRequest()
-        request.form.update(dict(ticket='ST-001-abc'))
-        creds = self.plugin.extractCredentials(request)
+        self.request.form.update(dict(ticket='ST-001-abc'))
+        creds = self.plugin.extractCredentials(self.request)
 
         self.assertIn('ticket', creds)
         self.assertEqual('ST-001-abc', creds['ticket'])
 
     def test_extract_credentials_returns_service_url(self):
-        request = TestRequest(
-            environ={'SERVER_URL': 'https://127.0.0.1/path'},
-            form={'ticket': 'ST-001-abc'})
-        creds = self.plugin.extractCredentials(request)
+        self.request.form.update({'ticket': 'ST-001-abc'})
+        creds = self.plugin.extractCredentials(self.request)
 
         self.assertIn('service_url', creds)
-        self.assertEqual('https://127.0.0.1/path', creds['service_url'])
+        self.assertEqual('http://nohost', creds['service_url'])
 
     def test_extract_credentials_without_ticket_returns_none(self):
-        request = TestRequest()
-        creds = self.plugin.extractCredentials(request)
+        creds = self.plugin.extractCredentials(self.request)
 
         self.assertEqual(None, creds)
 
@@ -61,8 +55,8 @@ class TestCASAuthPlugin(unittest.TestCase):
             'ticket': 'ST-001-abc',
             'service_url': 'http://127.0.0.1/'
         }
-        self.plugin.REQUEST = TestRequest()
-        self.plugin.REQUEST.RESPONSE = self.plugin.REQUEST.response
+        self.plugin.REQUEST = self.request
+        self.plugin.REQUEST.RESPONSE = self.request.response
         userid, login = self.plugin.authenticateCredentials(creds)
         self.assertEqual(TEST_USER_ID, userid)
         self.assertEqual(TEST_USER_ID, login)
@@ -84,7 +78,7 @@ class TestCASAuthPlugin(unittest.TestCase):
             'ticket': 'ST-001-abc',
             'service_url': 'http://127.0.0.1/'
         }
-        self.plugin.REQUEST = TestRequest()
-        self.plugin.REQUEST.RESPONSE = self.plugin.REQUEST.response
+        self.plugin.REQUEST = self.request
+        self.plugin.REQUEST.RESPONSE = self.request.response
         ret = self.plugin.authenticateCredentials(creds)
         self.assertEqual(None, ret)
