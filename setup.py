@@ -10,6 +10,7 @@ tests_require = [
 ]
 
 install_requires = [
+    'Plone',
     'setuptools',
 ]
 python_major_version = sys.version_info[0]
