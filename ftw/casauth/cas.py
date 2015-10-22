@@ -25,7 +25,17 @@ def validate_ticket(ticket, cas_server_url, service_url):
     )
 
     opener = urllib2.build_opener(HTTPSHandler)
-    resp = opener.open(validate_url)
+    try:
+        resp = opener.open(validate_url)
+    except urllib2.HTTPError as e:
+        logger.warning("Ticket validation failed. Could not open url %s. "
+                       "Staus code: %s, reason: %s" % (validate_url, e.code,
+                                                       e.reason))
+    except urllib2.URLError as e:
+        logger.warning("Ticket validation failed. Could not open url %s. "
+                       "Reason: %s" % (validate_url, e.reason))
+        return False
+
     resp_data = resp.read()
     try:
         doc = parseString(resp_data)
