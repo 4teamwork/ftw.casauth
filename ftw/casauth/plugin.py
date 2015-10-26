@@ -62,13 +62,9 @@ class CASAuthenticationPlugin(BasePlugin):
         if 'ticket' in request.form:
             return False
 
-        url = request['ACTUAL_URL']
-        if request['QUERY_STRING']:
-            url = '%s?%s' % (url, request['QUERY_STRING'])
-
         response.redirect('%s/login?service=%s' % (
             self.cas_server_url,
-            urllib.quote(url),
+            urllib.quote(self._service_url(request)),
         ), lock=True)
         return True
 
@@ -82,7 +78,7 @@ class CASAuthenticationPlugin(BasePlugin):
 
         creds = {}
         creds['ticket'] = request.form.get('ticket')
-        creds['service_url'] = request.getURL()
+        creds['service_url'] = self._service_url(request)
         return creds
 
     security.declarePrivate('authenticateCredentials')
@@ -122,3 +118,9 @@ class CASAuthenticationPlugin(BasePlugin):
 
         response.redirect('%s/manage_config?manage_tabs_message=%s' %
                           (self.absolute_url(), 'Configuration+updated.'))
+
+    def _service_url(self, request):
+        url = request['ACTUAL_URL']
+        if request['QUERY_STRING']:
+            url = '%s?%s' % (url, request['QUERY_STRING'])
+        return url
