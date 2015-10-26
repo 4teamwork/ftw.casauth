@@ -62,9 +62,13 @@ class CASAuthenticationPlugin(BasePlugin):
         if 'ticket' in request.form:
             return False
 
+        url = request['ACTUAL_URL']
+        if request['QUERY_STRING']:
+            url = '%s?%s' % (url, request['QUERY_STRING'])
+
         response.redirect('%s/login?service=%s' % (
             self.cas_server_url,
-            urllib.quote(request.getURL()),
+            urllib.quote(url),
         ), lock=True)
         return True
 

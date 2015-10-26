@@ -28,6 +28,17 @@ class TestCASAuthPlugin(unittest.TestCase):
 
         self.assertEqual(200, response.getStatus())
 
+    def test_challenge_redirect_includes_query_string(self):
+        self.request.environ['QUERY_STRING'] = 'param1=value1&param2=value2'
+        response = self.request.response
+
+        self.plugin.challenge(self.request, response)
+
+        self.assertEqual(302, response.getStatus())
+        self.assertEqual(
+            'https://cas.domain.net/login?service=http%3A//nohost%3Fparam1%3Dvalue1%26param2%3Dvalue2',
+            response.getHeader('Location'))
+
     def test_extract_credentials_returns_ticket(self):
         self.request.form.update(dict(ticket='ST-001-abc'))
         creds = self.plugin.extractCredentials(self.request)
