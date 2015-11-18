@@ -14,7 +14,7 @@ class TestCASAuthPlugin(unittest.TestCase):
 
     def test_challenge_redirects_to_cas(self):
         response = self.request.response
-        self.plugin.challenge(self.request, response)
+        self.assertTrue(self.plugin.challenge(self.request, response))
 
         self.assertEqual(302, response.getStatus())
         self.assertEqual(
@@ -24,7 +24,7 @@ class TestCASAuthPlugin(unittest.TestCase):
     def test_challenge_doesnt_redirect_with_ticket(self):
         self.request.form.update(dict(ticket='ST-001-abc'))
         response = self.request.response
-        self.plugin.challenge(self.request, response)
+        self.assertFalse(self.plugin.challenge(self.request, response))
 
         self.assertEqual(200, response.getStatus())
 
@@ -32,12 +32,17 @@ class TestCASAuthPlugin(unittest.TestCase):
         self.request.environ['QUERY_STRING'] = 'param1=value1&param2=value2'
         response = self.request.response
 
-        self.plugin.challenge(self.request, response)
+        self.assertTrue(self.plugin.challenge(self.request, response))
 
         self.assertEqual(302, response.getStatus())
         self.assertEqual(
             'https://cas.domain.net/login?service=http%3A//nohost%3Fparam1%3Dvalue1%26param2%3Dvalue2',
             response.getHeader('Location'))
+
+    def test_challenge_doesnt_redirect_with_missing_cas_server_url(self):
+        self.plugin.cas_server_url = None
+        response = self.request.response
+        self.assertFalse(self.plugin.challenge(self.request, response))
 
     def test_extract_credentials_returns_ticket(self):
         self.request.form.update(dict(ticket='ST-001-abc'))

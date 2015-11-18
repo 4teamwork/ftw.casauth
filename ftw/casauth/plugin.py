@@ -15,10 +15,11 @@ manage_addCASAuthenticationPlugin = PageTemplateFile(
     "www/addPlugin", globals(), __name__="manage_addCASAuthenticationPlugin")
 
 
-def addCASAuthenticationPlugin(self, id_, title='', REQUEST=None):
+def addCASAuthenticationPlugin(self, id_, title=None, cas_server_url=None,
+                               REQUEST=None):
     """Add a CAS authentication plugin
     """
-    plugin = CASAuthenticationPlugin(id_, title)
+    plugin = CASAuthenticationPlugin(id_, title, cas_server_url)
     self._setObject(plugin.getId(), plugin)
 
     if REQUEST is not None:
@@ -53,6 +54,8 @@ class CASAuthenticationPlugin(BasePlugin):
     def __init__(self, id_, title=None, cas_server_url=None):
         self._setId(id_)
         self.title = title
+        if cas_server_url:
+            cas_server_url = cas_server_url.rstrip('/')
         self.cas_server_url = cas_server_url
 
     security.declarePrivate('challenge')
@@ -60,6 +63,9 @@ class CASAuthenticationPlugin(BasePlugin):
     # Initiate a challenge to the user to provide credentials.
     def challenge(self, request, response, **kw):
         if 'ticket' in request.form:
+            return False
+
+        if not self.cas_server_url:
             return False
 
         response.redirect('%s/login?service=%s' % (
