@@ -31,9 +31,14 @@ def validate_ticket(ticket, cas_server_url, service_url):
         logger.warning("Ticket validation failed. Could not open url %s. "
                        "Staus code: %s, reason: %s" % (validate_url, e.code,
                                                        e.reason))
+        return False
     except urllib2.URLError as e:
         logger.warning("Ticket validation failed. Could not open url %s. "
                        "Reason: %s" % (validate_url, e.reason))
+        return False
+    except ValueError as e:  # backports.ssl_match_hostname CertificateError
+        logger.warning("Ticket validation failed. Could not open url %s. "
+                       "CertificateError: %s" % (validate_url, e.message))
         return False
 
     resp_data = resp.read()
