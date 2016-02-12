@@ -46,11 +46,9 @@ def validate_ticket(ticket, cas_server_url, service_url):
         doc = parseString(resp_data)
     except ExpatError:
         return False
-    auth_success = doc.getElementsByTagNameNS(CAS_NS,
-                                              'authenticationSuccess')
+    auth_success = doc.getElementsByTagName('authenticationSuccess')
     if not auth_success:
-        auth_fail = doc.getElementsByTagNameNS(CAS_NS,
-                                               'authenticationFailure')
+        auth_fail = doc.getElementsByTagName('authenticationFailure')
         if auth_fail:
             logger.info(
                 "Authentication failed: Service ticket validation returned"
@@ -60,7 +58,7 @@ def validate_ticket(ticket, cas_server_url, service_url):
                         " ticket.")
         return False
 
-    userid = auth_success[0].getElementsByTagNameNS(CAS_NS, 'user')
+    userid = auth_success[0].getElementsByTagNameNS('user')
     if not userid:
         return False
     userid = userid[0].firstChild.data
