@@ -47,6 +47,7 @@ def validate_ticket(ticket, cas_server_url, service_url):
     except ExpatError:
         return False
     auth_success = doc.getElementsByTagName('authenticationSuccess')
+    print doc
     if not auth_success:
         auth_fail = doc.getElementsByTagName('authenticationFailure')
         if auth_fail:
