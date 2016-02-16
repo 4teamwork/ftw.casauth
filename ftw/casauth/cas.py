@@ -2,7 +2,7 @@ from ftw.casauth.config import USE_CUSTOM_HTTPS_HANDLER
 import urllib
 import urllib2
 from logging import getLogger
-from xml.dom.minidom import parseString
+from xml.dom.minidom import parseString, parse
 from xml.parsers.expat import ExpatError
 
 if USE_CUSTOM_HTTPS_HANDLER:
@@ -10,21 +10,23 @@ if USE_CUSTOM_HTTPS_HANDLER:
 else:
     from urllib2 import HTTPSHandler
 
-CAS_NS = "http://www.yale.edu/tp/cas"
-
 logger = getLogger('ftw.casauth')
 
 
 def validate_ticket(ticket, cas_server_url, service_url):
     """Validates a CAS service ticket and returns the authenticated userid.
     """
+    logger.info("ticket:{}, cas_server_url: {}, service_url: {}".format(ticket, cas_server_url, service_url))
     validate_url = '%s/serviceValidate?service=%s&ticket=%s' % (
         cas_server_url,
         urllib.quote(service_url),
         ticket,
     )
 
+    logger.info("Validate URL: " + validate_url)
+    logger.info("somemore stuff")
     opener = urllib2.build_opener(HTTPSHandler)
+
     try:
         resp = opener.open(validate_url)
     except urllib2.HTTPError as e:
@@ -48,8 +50,9 @@ def validate_ticket(ticket, cas_server_url, service_url):
         return False
     auth_success = doc.getElementsByTagName('authenticationSuccess')
 
-    print logger.info(auth_success)
-    print logger.info(doc)
+    logger.info(auth_success)
+    
+    logger.info(resp_data)
 
     if not auth_success:
         auth_fail = doc.getElementsByTagName('authenticationFailure')

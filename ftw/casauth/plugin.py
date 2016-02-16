@@ -128,5 +128,6 @@ class CASAuthenticationPlugin(BasePlugin):
     def _service_url(self, request):
         url = request['ACTUAL_URL']
         if request['QUERY_STRING']:
-            url = '%s?%s' % (url, request['QUERY_STRING'])
+            #url = '%s?%s' % (url, request['QUERY_STRING'])
+            pass
         return url
