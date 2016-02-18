@@ -8,7 +8,7 @@ against a CAS (Central Autentication Server).
 
 It currently supports CAS 2.0 and CAS 3.0 protocols.
 
-(pe82/ftw.casauth) Was debugged and tested with Plone 5 and CAS 3.3.
+(pe82/ftw.casauth) Was debugged for and tested with Plone 5 and CAS 3.3.
 
 Installation
 ============
