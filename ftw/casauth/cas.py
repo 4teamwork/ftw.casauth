@@ -16,7 +16,6 @@ logger = getLogger('ftw.casauth')
 def validate_ticket(ticket, cas_server_url, service_url):
     """Validates a CAS service ticket and returns the authenticated userid.
     """
-    logger.info("ticket:{}, cas_server_url: {}, service_url: {}".format(ticket, cas_server_url, service_url))
     validate_url = '%s/serviceValidate?service=%s&ticket=%s' % (
         cas_server_url,
         urllib.quote(service_url),
@@ -24,7 +23,6 @@ def validate_ticket(ticket, cas_server_url, service_url):
     )
 
     logger.info("Validate URL: " + validate_url)
-    logger.info("somemore stuff")
     opener = urllib2.build_opener(HTTPSHandler)
 
     try:
@@ -46,17 +44,15 @@ def validate_ticket(ticket, cas_server_url, service_url):
     resp_data = resp.read()
     try:
         doc = parseString(resp_data)
-    except ExpatError:
+    except ExpatError as exp:
+        logger.info("ExpatError: %s" % exp.message)
         return False
-    auth_success = doc.getElementsByTagName('authenticationSuccess')
-
-    logger.info(auth_success)
-    
-    logger.info(resp_data)
+    auth_success = doc.getElementsByTagName('cas:authenticationSuccess')
 
     if not auth_success:
-        auth_fail = doc.getElementsByTagName('authenticationFailure')
+        auth_fail = doc.getElementsByTagName('cas:authenticationFailure')
         if auth_fail:
+            logger.info('auth_fail is true, doc = {}'.format(doc.toprettyxml()))
             logger.info(
                 "Authentication failed: Service ticket validation returned"
                 " '%s'." % auth_fail[0].getAttribute('code'))
@@ -65,9 +61,11 @@ def validate_ticket(ticket, cas_server_url, service_url):
                         " ticket.")
         return False
 
-    userid = auth_success[0].getElementsByTagNameNS('user')
+    userid = auth_success[0].getElementsByTagName('cas:user')
     if not userid:
         return False
     userid = userid[0].firstChild.data
+
+    logger.info("Validated User ID: %s" % userid)
 
     return userid
