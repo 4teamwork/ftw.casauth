@@ -4,6 +4,10 @@ Changelog
 1.0.1 (unreleased)
 ------------------
 
+- Handle login similar to PlonePAS (fire login events,
+  expire clipboard, create member area and set login times).
+  [phgross]
+
 - Avoid having the `ticket` param end up in the browser address bar by
   stripping it from the service_url, and redirecting to the service_url
   after extracting credentials (i.e., a ticket) from the request.

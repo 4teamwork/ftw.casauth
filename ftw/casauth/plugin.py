@@ -1,9 +1,13 @@
 from AccessControl.requestmethod import postonly
 from AccessControl.SecurityInfo import ClassSecurityInfo
 from collections import OrderedDict
+from DateTime import DateTime
 from ftw.casauth.cas import validate_ticket
 from Products.CMFCore.permissions import ManagePortal
+from Products.CMFCore.utils import getToolByName
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.PlonePAS.events import UserInitialLoginInEvent
+from Products.PlonePAS.events import UserLoggedInEvent
 from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
 from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
 from Products.PluggableAuthService.interfaces.plugins import IExtractionPlugin
@@ -12,6 +16,8 @@ from urllib import urlencode
 from urlparse import parse_qsl
 from urlparse import urlsplit
 from urlparse import urlunsplit
+from zope.component.hooks import getSite
+from zope.event import notify
 from zope.interface import implements
 import urllib
 
@@ -115,13 +121,61 @@ class CASAuthenticationPlugin(BasePlugin):
         if not userid:
             return None
 
+        result = self.login_user(userid)
+        if not result:
+            return None
+
+        return userid, userid
+
+    def login_user(self, userid):
         pas = self._getPAS()
         info = pas._verifyUser(pas.plugins, user_id=userid)
         if info is None:
             return None
-        pas.updateCredentials(self.REQUEST, self.REQUEST.RESPONSE, userid, '')
 
-        return userid, userid
+        mtool = getToolByName(getSite(), 'portal_membership')
+        member = mtool.getMemberById(userid)
+        if member is None:
+            return None
+
+        first_login = self.set_login_times(member)
+
+        self.fire_login_events(first_login, member)
+
+        self.expire_clipboard()
+
+        mtool.createMemberArea(member_id=userid)
+
+        pas.updateCredentials(self.REQUEST, self.REQUEST.RESPONSE, userid, '')
+        return member
+
+    def set_login_times(self, member):
+        # The return value indicates if this is the first logged login time.
+
+        first_login = False
+        default = DateTime('2000/01/01')
+
+        login_time = member.getProperty('login_time', default)
+        if login_time == default:
+            first_login = True
+            login_time = DateTime()
+
+        mtool = getToolByName(getSite(), 'portal_membership')
+        member.setMemberProperties(dict(
+            login_time=mtool.ZopeTime(),
+            last_login_time=login_time))
+
+        return first_login
+
+    def fire_login_events(self, first_login, user):
+        if first_login:
+            notify(UserInitialLoginInEvent(user))
+        else:
+            notify(UserLoggedInEvent(user))
+
+    def expire_clipboard(self):
+        if self.REQUEST.get('__cp', None) is not None:
+            self.REQUEST.RESPONSE.expireCookie('__cp', path='/')
 
     security.declareProtected(ManagePortal, 'manage_updateConfig')
 
