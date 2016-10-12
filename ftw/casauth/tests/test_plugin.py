@@ -1,6 +1,8 @@
+from collections import OrderedDict
 from ftw.casauth.testing import FTW_CASAUTH_INTEGRATION_TESTING
-from plone.app.testing import TEST_USER_ID
 from mock import patch
+from plone.app.testing import TEST_USER_ID
+from urllib import urlencode
 import unittest
 
 
@@ -58,10 +60,33 @@ class TestCASAuthPlugin(unittest.TestCase):
         self.assertIn('service_url', creds)
         self.assertEqual('http://nohost', creds['service_url'])
 
+    def test_extract_credentials_redirects_to_service_url(self):
+        self.request.form.update({'ticket': 'ST-001-abc'})
+        self.plugin.extractCredentials(self.request)
+
+        self.assertEqual(302, self.request.RESPONSE.status)
+        self.assertDictContainsSubset({'location': 'http://nohost'},
+                                      self.request.RESPONSE.headers)
+
     def test_extract_credentials_without_ticket_returns_none(self):
         creds = self.plugin.extractCredentials(self.request)
 
         self.assertEqual(None, creds)
+
+    def test_extract_credentials_without_ticket_doesnt_redirect(self):
+        self.plugin.extractCredentials(self.request)
+
+        self.assertEqual(200, self.request.RESPONSE.status)
+        self.assertNotIn('location', self.request.RESPONSE.headers)
+
+    def test_service_url_has_ticket_stripped(self):
+        params = OrderedDict(
+            (('ticket', 'ST-001-abc'), ('param1', 'v1'), ('param2', 'v2')))
+        self.request.form.update(params)
+        self.request.environ['QUERY_STRING'] = urlencode(params)
+        service_url = self.plugin._service_url(self.request)
+
+        self.assertEqual('http://nohost?param1=v1&param2=v2', service_url)
 
     @patch('ftw.casauth.plugin.validate_ticket')
     def test_authenticate_credentials_succeeds_with_valid_credentials(self, mock_validate_ticket):

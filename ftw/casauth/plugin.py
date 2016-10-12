@@ -1,13 +1,18 @@
-from AccessControl.SecurityInfo import ClassSecurityInfo
 from AccessControl.requestmethod import postonly
+from AccessControl.SecurityInfo import ClassSecurityInfo
+from collections import OrderedDict
+from ftw.casauth.cas import validate_ticket
 from Products.CMFCore.permissions import ManagePortal
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
 from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
 from Products.PluggableAuthService.interfaces.plugins import IExtractionPlugin
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
+from urllib import urlencode
+from urlparse import parse_qsl
+from urlparse import urlsplit
+from urlparse import urlunsplit
 from zope.interface import implements
-from ftw.casauth.cas import validate_ticket
 import urllib
 
 
@@ -85,6 +90,12 @@ class CASAuthenticationPlugin(BasePlugin):
         creds = {}
         creds['ticket'] = request.form.get('ticket')
         creds['service_url'] = self._service_url(request)
+
+        # Avoid having the `ticket` query string param show up in the
+        # user's browser's address bar by redirecting back to the
+        # service_url, which should have the ticket stripped from it
+        request.RESPONSE.redirect(creds['service_url'], lock=True)
+
         return creds
 
     security.declarePrivate('authenticateCredentials')
@@ -129,4 +140,17 @@ class CASAuthenticationPlugin(BasePlugin):
         url = request['ACTUAL_URL']
         if request['QUERY_STRING']:
             url = '%s?%s' % (url, request['QUERY_STRING'])
+            url = self._strip_ticket(url)
         return url
+
+    def _strip_ticket(self, url):
+        """Drop the `ticket` query string parameter from a given URL,
+        but preserve everything else.
+        """
+        scheme, netloc, path, query, fragment = urlsplit(url)
+        # Using OrderedDict and parse_qsl here to preserve order
+        qs_params = OrderedDict(parse_qsl(query))
+        qs_params.pop('ticket', None)
+        query = urlencode(qs_params)
+        new_url = urlunsplit((scheme, netloc, path, query, fragment))
+        return new_url

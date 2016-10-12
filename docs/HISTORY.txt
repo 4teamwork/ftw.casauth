@@ -4,7 +4,10 @@ Changelog
 1.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Avoid having the `ticket` param end up in the browser address bar by
+  stripping it from the service_url, and redirecting to the service_url
+  after extracting credentials (i.e., a ticket) from the request.
+  [lgraf]
 
 
 1.0.0 (2015-11-25)
