@@ -1,8 +1,13 @@
 from collections import OrderedDict
+from DateTime import DateTime
+from datetime import datetime
 from ftw.casauth.testing import FTW_CASAUTH_INTEGRATION_TESTING
+from ftw.testing import freeze
 from mock import patch
 from plone.app.testing import TEST_USER_ID
+from Products.CMFCore.utils import getToolByName
 from urllib import urlencode
+from zope.component.hooks import getSite
 import unittest
 
 
@@ -123,3 +128,41 @@ class TestCASAuthPlugin(unittest.TestCase):
         self.plugin.REQUEST.RESPONSE = self.request.response
         ret = self.plugin.authenticateCredentials(creds)
         self.assertEqual(None, ret)
+
+    @patch('ftw.casauth.plugin.validate_ticket')
+    def test_sets_login_times_when_success(self, mock_validate_ticket):
+        mtool = getToolByName(getSite(), 'portal_membership')
+
+        mock_validate_ticket.return_value = TEST_USER_ID
+        creds = {
+            'extractor': self.plugin.getId(),
+            'ticket': 'ST-001-abc',
+            'service_url': 'http://127.0.0.1/'
+        }
+        self.plugin.REQUEST = self.request
+        self.plugin.REQUEST.RESPONSE = self.request.response
+
+        with freeze(datetime(2016, 2, 12, 16, 40)):
+            userid, login = self.plugin.authenticateCredentials(creds)
+            self.assertEqual(
+                DateTime(),
+                mtool.getMemberById(TEST_USER_ID).getProperty('login_time'))
+
+    @patch('ftw.casauth.plugin.validate_ticket')
+    def test_expires_clipboard_when_success(self, mock_validate_ticket):
+        mock_validate_ticket.return_value = TEST_USER_ID
+        creds = {
+            'extractor': self.plugin.getId(),
+            'ticket': 'ST-001-abc',
+            'service_url': 'http://127.0.0.1/'
+        }
+        self.plugin.REQUEST = self.request
+        self.plugin.REQUEST.RESPONSE = self.request.response
+        self.plugin.REQUEST.RESPONSE.setCookie('__cp', ['file-1'], path='/')
+        self.plugin.REQUEST['__cp'] = ['file-1']
+
+        userid, login = self.plugin.authenticateCredentials(creds)
+
+        cookie = self.plugin.REQUEST.RESPONSE.cookies.get('__cp')
+        self.assertEqual('Wed, 31-Dec-97 23:59:59 GMT', cookie.get('expires'))
+        self.assertEqual('deleted', cookie.get('value'))
