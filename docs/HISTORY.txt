@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0.1 (unreleased)
+1.1.0 (2016-10-13)
 ------------------
 
 - Handle login similar to PlonePAS (fire login events,
