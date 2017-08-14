@@ -6,7 +6,5 @@
     i18n_domain="ftw.casauth">
 
   <five:registerPackage package="." initialize=".initialize" />
-
-  <includeDependencies package="." />
-
+    
 </configure>
