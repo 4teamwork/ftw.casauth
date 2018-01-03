@@ -4,8 +4,7 @@ Changelog
 1.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Add special handling for wrongly converted URLs by Word 2010 (#-symbol). [phgross]
 
 1.1.0 (2016-10-13)
 ------------------

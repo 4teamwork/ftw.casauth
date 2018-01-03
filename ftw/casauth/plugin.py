@@ -192,6 +192,7 @@ class CASAuthenticationPlugin(BasePlugin):
 
     def _service_url(self, request):
         url = request['ACTUAL_URL']
+        url = self._fix_hashmark_in_urls(url)
         if request['QUERY_STRING']:
             url = '%s?%s' % (url, request['QUERY_STRING'])
             url = self._strip_ticket(url)
@@ -208,3 +209,10 @@ class CASAuthenticationPlugin(BasePlugin):
         query = urlencode(qs_params)
         new_url = urlunsplit((scheme, netloc, path, query, fragment))
         return new_url
+
+    def _fix_hashmark_in_urls(self, url):
+        """Office 2010/2013 does not accept `#`-symbol in hyperlinks in
+        documents and converts them to `'%20-%20`. This helper methods convert
+        the url back to avoid 404 pages.
+         """
+        return url.replace('%20-%20', '#')

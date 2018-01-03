@@ -46,6 +46,17 @@ class TestCASAuthPlugin(unittest.TestCase):
             'https://cas.domain.net/login?service=http%3A//nohost%3Fparam1%3Dvalue1%26param2%3Dvalue2',
             response.getHeader('Location'))
 
+    def test_wrongly_converted_hasmarks_are_fixed(self):
+        self.request.form.update(dict(ticket='ST-001-abc'))
+        self.request['QUERY_STRING'] = 'param1=value1'
+        self.request['ACTUAL_URL'] = 'http://nohost%20-%20overview'
+
+        self.plugin.extractCredentials(self.request)
+
+        self.assertEqual(
+            {'location': 'http://nohost#overview?param1=value1'},
+            self.request.response.headers)
+
     def test_challenge_doesnt_redirect_with_missing_cas_server_url(self):
         self.plugin.cas_server_url = None
         response = self.request.response
