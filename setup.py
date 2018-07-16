@@ -6,7 +6,9 @@ version = '1.1.1.dev0'
 
 tests_require = [
     'plone.app.testing',
+    'plone.restapi',
     'mock',
+    'ftw.testbrowser',
     'ftw.testing',
 ]
 
