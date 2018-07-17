@@ -1,21 +1,17 @@
 from AccessControl.requestmethod import postonly
 from AccessControl.SecurityInfo import ClassSecurityInfo
-from collections import OrderedDict
 from DateTime import DateTime
+from ftw.casauth.cas import service_url
 from ftw.casauth.cas import validate_ticket
 from Products.CMFCore.permissions import ManagePortal
 from Products.CMFCore.utils import getToolByName
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.PlonePAS.events import UserInitialLoginInEvent
 from Products.PlonePAS.events import UserLoggedInEvent
-from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
+from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin  # noqa
 from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
 from Products.PluggableAuthService.interfaces.plugins import IExtractionPlugin
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
-from urllib import urlencode
-from urlparse import parse_qsl
-from urlparse import urlsplit
-from urlparse import urlunsplit
 from zope.component.hooks import getSite
 from zope.event import notify
 from zope.interface import implements
@@ -81,7 +77,7 @@ class CASAuthenticationPlugin(BasePlugin):
 
         response.redirect('%s/login?service=%s' % (
             self.cas_server_url,
-            urllib.quote(self._service_url(request)),
+            urllib.quote(service_url(request)),
         ), lock=True)
         return True
 
@@ -95,7 +91,7 @@ class CASAuthenticationPlugin(BasePlugin):
 
         creds = {}
         creds['ticket'] = request.form.get('ticket')
-        creds['service_url'] = self._service_url(request)
+        creds['service_url'] = service_url(request)
 
         # Avoid having the `ticket` query string param show up in the
         # user's browser's address bar by redirecting back to the
@@ -189,22 +185,3 @@ class CASAuthenticationPlugin(BasePlugin):
 
         response.redirect('%s/manage_config?manage_tabs_message=%s' %
                           (self.absolute_url(), 'Configuration+updated.'))
-
-    def _service_url(self, request):
-        url = request['ACTUAL_URL']
-        if request['QUERY_STRING']:
-            url = '%s?%s' % (url, request['QUERY_STRING'])
-            url = self._strip_ticket(url)
-        return url
-
-    def _strip_ticket(self, url):
-        """Drop the `ticket` query string parameter from a given URL,
-        but preserve everything else.
-        """
-        scheme, netloc, path, query, fragment = urlsplit(url)
-        # Using OrderedDict and parse_qsl here to preserve order
-        qs_params = OrderedDict(parse_qsl(query))
-        qs_params.pop('ticket', None)
-        query = urlencode(qs_params)
-        new_url = urlunsplit((scheme, netloc, path, query, fragment))
-        return new_url
