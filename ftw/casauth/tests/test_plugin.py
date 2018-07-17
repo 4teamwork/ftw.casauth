@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from DateTime import DateTime
 from datetime import datetime
+from ftw.casauth.cas import service_url
 from ftw.casauth.testing import FTW_CASAUTH_INTEGRATION_TESTING
 from ftw.testing import freeze
 from mock import patch
@@ -89,9 +90,9 @@ class TestCASAuthPlugin(unittest.TestCase):
             (('ticket', 'ST-001-abc'), ('param1', 'v1'), ('param2', 'v2')))
         self.request.form.update(params)
         self.request.environ['QUERY_STRING'] = urlencode(params)
-        service_url = self.plugin._service_url(self.request)
+        url = service_url(self.request)
 
-        self.assertEqual('http://nohost?param1=v1&param2=v2', service_url)
+        self.assertEqual('http://nohost?param1=v1&param2=v2', url)
 
     @patch('ftw.casauth.plugin.validate_ticket')
     def test_authenticate_credentials_succeeds_with_valid_credentials(self, mock_validate_ticket):

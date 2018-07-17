@@ -1,9 +1,16 @@
+from collections import OrderedDict
 from ftw.casauth.config import USE_CUSTOM_HTTPS_HANDLER
-import urllib
-import urllib2
 from logging import getLogger
+from urllib import urlencode
+from urlparse import parse_qsl
+from urlparse import urlsplit
+from urlparse import urlunsplit
 from xml.dom.minidom import parseString
 from xml.parsers.expat import ExpatError
+
+import urllib
+import urllib2
+
 
 if USE_CUSTOM_HTTPS_HANDLER:
     from ftw.casauth.https import HTTPSHandler
@@ -66,3 +73,24 @@ def validate_ticket(ticket, cas_server_url, service_url):
     userid = userid[0].firstChild.data
 
     return userid
+
+
+def service_url(request):
+    url = request['ACTUAL_URL']
+    if request['QUERY_STRING']:
+        url = '%s?%s' % (url, request['QUERY_STRING'])
+        url = strip_ticket(url)
+    return url
+
+
+def strip_ticket(url):
+    """Drop the `ticket` query string parameter from a given URL,
+    but preserve everything else.
+    """
+    scheme, netloc, path, query, fragment = urlsplit(url)
+    # Using OrderedDict and parse_qsl here to preserve order
+    qs_params = OrderedDict(parse_qsl(query))
+    qs_params.pop('ticket', None)
+    query = urlencode(qs_params)
+    new_url = urlunsplit((scheme, netloc, path, query, fragment))
+    return new_url
