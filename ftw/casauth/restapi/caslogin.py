@@ -21,6 +21,11 @@ class CASLogin(Service):
                 type='Missing service ticket',
                 message='Service ticket must be provided in body.'))
 
+        if 'service' in data:
+            service = data['service']
+        else:
+            service = service_url(self.request)[:-10],  # Strip `/@caslogin`
+
         # Disable CSRF protection
         if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
             alsoProvides(self.request,
@@ -46,7 +51,7 @@ class CASLogin(Service):
         userid = validate_ticket(
             data['ticket'],
             cas_plugin.cas_server_url,
-            service_url(self.request),
+            service,
         )
 
         user = uf.getUserById(userid)

@@ -59,3 +59,22 @@ class TestCASLogin(unittest.TestCase):
             )
         self.assertEqual(browser.status_code, 200)
         self.assertIn(u'token', browser.json)
+
+    @browsing
+    def test_accepts_service_url_from_body(self, browser):
+        with patch('ftw.casauth.restapi.caslogin.validate_ticket') as mock:
+            mock.return_value = TEST_USER_ID
+            browser.open(
+                self.portal.absolute_url() + '/@caslogin',
+                data=json.dumps({
+                    "ticket": "12345",
+                    "service": "http://myhost/#test",
+                }),
+                method='POST',
+                headers={'Accept': 'application/json',
+                         'Content-Type': 'application/json'},
+            )
+        self.assertEqual(browser.status_code, 200)
+        self.assertIn(u'token', browser.json)
+        mock.assert_called_with(
+            u'12345', 'https://cas.domain.net', u'http://myhost/#test')
