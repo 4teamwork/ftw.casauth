@@ -5,6 +5,7 @@ import sys
 version = '1.2.1.dev0'
 
 tests_require = [
+    'plone.api',
     'plone.app.testing',
     'plone.restapi',
     'mock',
