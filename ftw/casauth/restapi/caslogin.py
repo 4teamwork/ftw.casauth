@@ -55,6 +55,12 @@ class CASLogin(Service):
         )
 
         user = uf.getUserById(userid)
+        if not user:
+            return dict(error=dict(
+                type='Login failed',
+                message='User with userid {} not found.'.format(userid)))
+
+        cas_plugin.handle_login(userid)
         payload = {'fullname': user.getProperty('fullname')}
         return {
             'token': jwt_plugin.create_token(userid, data=payload)

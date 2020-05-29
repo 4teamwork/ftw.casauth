@@ -1,6 +1,10 @@
+from datetime import datetime
+from DateTime import DateTime
 from ftw.casauth.testing import FTW_CASAUTH_INTEGRATION_TESTING
 from ftw.testbrowser import browsing
+from ftw.testing import freeze
 from mock import patch
+from plone import api
 from plone.app.testing import TEST_USER_ID
 
 import json
@@ -78,3 +82,22 @@ class TestCASLogin(unittest.TestCase):
         self.assertIn(u'token', browser.json)
         mock.assert_called_with(
             u'12345', 'https://cas.domain.net', u'http://myhost/#test')
+
+    @browsing
+    def test_sets_login_times_when_success(self, browser):
+        with patch('ftw.casauth.restapi.caslogin.validate_ticket') as mock:
+            mock.return_value = TEST_USER_ID
+            with freeze(datetime(2016, 2, 12, 16, 40)):
+                browser.open(
+                    self.portal.absolute_url() + '/@caslogin',
+                    data=json.dumps({
+                        "ticket": "12345",
+                        "service": "http://myhost/#test",
+                    }),
+                    method='POST',
+                    headers={'Accept': 'application/json',
+                             'Content-Type': 'application/json'},
+                )
+                mtool = api.portal.get_tool('portal_membership')
+                self.assertEqual(DateTime(),
+                                 mtool.getMemberById(TEST_USER_ID).getProperty('login_time'))
