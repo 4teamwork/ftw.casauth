@@ -123,7 +123,7 @@ class CASAuthenticationPlugin(BasePlugin):
 
         return userid, userid
 
-    def login_user(self, userid):
+    def handle_login(self, userid):
         pas = self._getPAS()
         info = pas._verifyUser(pas.plugins, user_id=userid)
         if info is None:
@@ -135,13 +135,16 @@ class CASAuthenticationPlugin(BasePlugin):
             return None
 
         first_login = self.set_login_times(member)
-
         self.fire_login_events(first_login, member)
-
         self.expire_clipboard()
-
         mtool.createMemberArea(member_id=userid)
+        return member
 
+    def login_user(self, userid):
+        member = self.handle_login(userid)
+        if not member:
+            return None
+        pas = self._getPAS()
         pas.updateCredentials(self.REQUEST, self.REQUEST.RESPONSE, userid, '')
         return member
 
