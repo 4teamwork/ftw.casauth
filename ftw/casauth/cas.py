@@ -1,4 +1,3 @@
-from collections import OrderedDict
 from ftw.casauth.config import USE_CUSTOM_HTTPS_HANDLER
 from logging import getLogger
 from urllib import urlencode
@@ -88,9 +87,8 @@ def strip_ticket(url):
     but preserve everything else.
     """
     scheme, netloc, path, query, fragment = urlsplit(url)
-    # Using OrderedDict and parse_qsl here to preserve order
-    qs_params = OrderedDict(parse_qsl(query))
-    qs_params.pop('ticket', None)
+    # Using parse_qsl here to preserve order
+    qs_params = filter(lambda (k, v): k != 'ticket', parse_qsl(query))
     query = urlencode(qs_params)
     new_url = urlunsplit((scheme, netloc, path, query, fragment))
     return new_url
