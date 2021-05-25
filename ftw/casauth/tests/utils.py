@@ -7,12 +7,6 @@ def get_data(filename):
     return open(filename, 'r').read()
 
 
-class MockRequest(object):
-
-    def get_type(self):
-        return 'https'
-
-
 class MockResponse(object):
 
     def __init__(self, data, code=200, msg='OK'):

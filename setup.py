@@ -1,6 +1,5 @@
 from setuptools import setup, find_packages
 import os
-import sys
 
 version = '1.3.2.dev0'
 
@@ -17,16 +16,7 @@ install_requires = [
     'Plone',
     'setuptools',
 ]
-python_major_version = sys.version_info[0]
-python_minor_version = sys.version_info[1]
-python_micro_version = sys.version_info[2]
-if python_major_version == 2:
-    if python_minor_version < 5:
-        install_requires.append('hashlib')
-    if python_minor_version < 6:
-        install_requires.append('ssl')
-    if not (python_minor_version == 7 and python_micro_version >= 9):
-        install_requires.append('backports.ssl_match_hostname')
+
 
 setup(
     name='ftw.casauth',
@@ -36,10 +26,10 @@ setup(
                       open(os.path.join('docs', 'HISTORY.txt')).read()),
     classifiers=[
         'Framework :: Plone',
-        'Framework :: Plone :: 4.1',
-        'Framework :: Plone :: 4.2',
         'Framework :: Plone :: 4.3',
         'Framework :: Plone :: 5.1',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
