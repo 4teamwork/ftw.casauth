@@ -4,7 +4,9 @@ Changelog
 1.3.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Drop support for Python < 2.7.9. [buchi]
+- Use Python's built-in HTTPS handler which enables support for TLS 1.2 and
+  uses CA certificates provided by the OS. [buchi]
 
 
 1.3.1 (2021-02-05)

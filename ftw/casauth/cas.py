@@ -1,4 +1,3 @@
-from ftw.casauth.config import USE_CUSTOM_HTTPS_HANDLER
 from logging import getLogger
 from urllib import urlencode
 from urlparse import parse_qsl
@@ -9,12 +8,8 @@ from xml.parsers.expat import ExpatError
 
 import urllib
 import urllib2
+import ssl
 
-
-if USE_CUSTOM_HTTPS_HANDLER:
-    from ftw.casauth.https import HTTPSHandler
-else:
-    from urllib2 import HTTPSHandler
 
 CAS_NS = "http://www.yale.edu/tp/cas"
 
@@ -30,24 +25,33 @@ def validate_ticket(ticket, cas_server_url, service_url):
         ticket,
     )
 
-    opener = urllib2.build_opener(HTTPSHandler)
     try:
-        resp = opener.open(validate_url)
+        resp = urllib2.urlopen(validate_url)
     except urllib2.HTTPError as e:
         logger.warning("Ticket validation failed. Could not open url %s. "
-                       "Staus code: %s, reason: %s" % (validate_url, e.code,
-                                                       e.reason))
+                       "Staus code: %s, reason: %s", validate_url, e.code,
+                       e.reason)
         return False
     except urllib2.URLError as e:
         logger.warning("Ticket validation failed. Could not open url %s. "
-                       "Reason: %s" % (validate_url, e.reason))
+                       "Reason: %s", validate_url, e.reason)
         return False
-    except ValueError as e:  # backports.ssl_match_hostname CertificateError
+    except ssl.CertificateError as e:
         logger.warning("Ticket validation failed. Could not open url %s. "
-                       "CertificateError: %s" % (validate_url, e.message))
+                       "CertificateError: %s", validate_url, str(e))
+        return False
+    except ssl.SSLError as e:
+        logger.warning("Ticket validation failed. Could not open url %s. "
+                       "SSL Error: %s", validate_url, e.reason)
         return False
 
-    resp_data = resp.read()
+    try:
+        resp_data = resp.read()
+    except IOError:
+        logger.warning("Ticket validation failed. Could not read from url %s.",
+                       validate_url)
+        return False
+
     try:
         doc = parseString(resp_data)
     except ExpatError:
