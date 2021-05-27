@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.3.2 (unreleased)
+1.4.0 (2021-05-27)
 ------------------
 
 - Add support for cookie based authentication when using REST API. [buchi]
