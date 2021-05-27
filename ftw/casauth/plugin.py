@@ -145,7 +145,8 @@ class CASAuthenticationPlugin(BasePlugin):
         if not member:
             return None
         pas = self._getPAS()
-        pas.updateCredentials(self.REQUEST, self.REQUEST.RESPONSE, userid, '')
+        pas.updateCredentials(
+            self.REQUEST, self.REQUEST.RESPONSE, member.getUserName(), '')
         return member
 
     def set_login_times(self, member):

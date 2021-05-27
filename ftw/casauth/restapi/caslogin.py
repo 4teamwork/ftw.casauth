@@ -26,6 +26,8 @@ class CASLogin(Service):
         else:
             service = service_url(self.request)[:-10],  # Strip `/@caslogin`
 
+        set_cookie = data.get('set_cookie', False)
+
         # Disable CSRF protection
         if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
             alsoProvides(self.request,
@@ -42,11 +44,17 @@ class CASLogin(Service):
             elif authenticator.meta_type == "JWT Authentication Plugin":
                 jwt_plugin = authenticator
 
-        if cas_plugin is None or jwt_plugin is None:
+        if cas_plugin is None:
             self.request.response.setStatus(501)
             return dict(error=dict(
                 type='Login failed',
-                message='CAS/JWT authentication plugin not installed.'))
+                message='CAS authentication plugin not installed.'))
+
+        if jwt_plugin is None and not set_cookie:
+            self.request.response.setStatus(501)
+            return dict(error=dict(
+                type='Login failed',
+                message='JWT authentication plugin not installed.'))
 
         userid = validate_ticket(
             data['ticket'],
@@ -60,11 +68,15 @@ class CASLogin(Service):
                 type='Login failed',
                 message='User with userid {} not found.'.format(userid)))
 
-        cas_plugin.handle_login(userid)
-        payload = {'fullname': user.getProperty('fullname')}
-        return {
-            'token': jwt_plugin.create_token(userid, data=payload)
-        }
+        if set_cookie:
+            cas_plugin.login_user(userid)
+            return {'userid': userid, 'fullname': user.getProperty('fullname')}
+        else:
+            cas_plugin.handle_login(userid)
+            payload = {'fullname': user.getProperty('fullname')}
+            return {
+                'token': jwt_plugin.create_token(userid, data=payload)
+            }
 
     def check_permission(self):
         return
