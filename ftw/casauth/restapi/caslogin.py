@@ -62,7 +62,7 @@ class CASLogin(Service):
             service,
         )
 
-        user = uf.getUserById(userid)
+        user = uf.getUserById(userid) if userid else None
         if not user:
             return dict(error=dict(
                 type='Login failed',
