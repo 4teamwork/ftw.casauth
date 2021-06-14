@@ -1,11 +1,11 @@
 Changelog
 =========
 
-1.4.1 (unreleased)
+1.4.1 (2021-06-14)
 ------------------
 
 - Fix login with invalid ticket, which could lead to authenticate the wrong
-  user.
+  user. [buchi]
 
 
 1.4.0 (2021-05-27)
