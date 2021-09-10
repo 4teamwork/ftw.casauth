@@ -31,6 +31,24 @@ class TestCASLogin(unittest.TestCase):
             browser.json[u'error'][u'type'], u'Missing service ticket')
 
     @browsing
+    def test_missing_user_returns_401(self, browser):
+        with patch('ftw.casauth.restapi.caslogin.validate_ticket') as mock:
+            mock.return_value = 'not-existing-user-in-plone'
+            with browser.expect_http_error(code=401, reason='Unauthorized'):
+                browser.open(
+                    self.portal.absolute_url() + '/@caslogin',
+                    data=json.dumps({
+                        "ticket": "12345",
+                    }),
+                    method='POST',
+                    headers={'Accept': 'application/json',
+                             'Content-Type': 'application/json'},
+                )
+        self.assertEqual(browser.status_code, 401)
+        self.assertEqual(
+            browser.json[u'error'][u'type'], u'Login failed')
+
+    @browsing
     def test_missing_cas_plugin_returns_501(self, browser):
         self.portal.acl_users._delOb('cas_auth')
         with browser.expect_http_error(code=501, reason='Not Implemented'):
