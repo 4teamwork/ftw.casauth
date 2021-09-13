@@ -64,6 +64,7 @@ class CASLogin(Service):
 
         user = uf.getUserById(userid) if userid else None
         if not user:
+            self.request.response.setStatus(401)
             return dict(error=dict(
                 type='Login failed',
                 message='User with userid {} not found.'.format(userid)))

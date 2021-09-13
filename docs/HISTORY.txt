@@ -4,7 +4,7 @@ Changelog
 1.4.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Raise a 401 if the user to log in does not exist. [elioschmutz]
 
 
 1.4.1 (2021-06-14)
