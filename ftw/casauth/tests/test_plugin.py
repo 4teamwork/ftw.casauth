@@ -3,6 +3,7 @@ from DateTime import DateTime
 from datetime import datetime
 from ftw.casauth.cas import service_url
 from ftw.casauth.testing import FTW_CASAUTH_INTEGRATION_TESTING
+from ftw.casauth.testing import PLONE_VERSION
 from ftw.testing import freeze
 from mock import patch
 from plone.app.testing import TEST_USER_ID
@@ -165,5 +166,11 @@ class TestCASAuthPlugin(unittest.TestCase):
         userid, login = self.plugin.authenticateCredentials(creds)
 
         cookie = self.plugin.REQUEST.RESPONSE.cookies.get('__cp')
-        self.assertEqual('Wed, 31-Dec-97 23:59:59 GMT', cookie.get('expires'))
+
+        if PLONE_VERSION >= (5, 2, 0):
+            # Spelling of 'Expires' key and date formatting changed in Plone 5.2
+            self.assertEqual('Wed, 31 Dec 1997 23:59:59 GMT', cookie.get('Expires'))
+        else:
+            self.assertEqual('Wed, 31-Dec-97 23:59:59 GMT', cookie.get('expires'))
+
         self.assertEqual('deleted', cookie.get('value'))
