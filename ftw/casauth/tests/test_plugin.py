@@ -8,7 +8,7 @@ from ftw.testing import freeze
 from mock import patch
 from plone.app.testing import TEST_USER_ID
 from Products.CMFCore.utils import getToolByName
-from urllib import urlencode
+from six.moves.urllib.parse import urlencode
 from zope.component.hooks import getSite
 import unittest
 

@@ -15,7 +15,7 @@ from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from zope.component.hooks import getSite
 from zope.event import notify
 from zope.interface import implements
-import urllib
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 
 
 manage_addCASAuthenticationPlugin = PageTemplateFile(
@@ -77,7 +77,7 @@ class CASAuthenticationPlugin(BasePlugin):
 
         response.redirect('%s/login?service=%s' % (
             self.cas_server_url,
-            urllib.quote(service_url(request)),
+            six.moves.urllib.parse.quote(service_url(request)),
         ), lock=True)
         return True
 

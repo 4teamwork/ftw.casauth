@@ -1,13 +1,13 @@
 from logging import getLogger
-from urllib import urlencode
-from urlparse import parse_qsl
-from urlparse import urlsplit
-from urlparse import urlunsplit
+from six.moves.urllib.parse import urlencode
+from six.moves.urllib.parse import parse_qsl
+from six.moves.urllib.parse import urlsplit
+from six.moves.urllib.parse import urlunsplit
 from xml.dom.minidom import parseString
 from xml.parsers.expat import ExpatError
 
-import urllib
-import urllib2
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
+import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 import ssl
 
 
@@ -21,18 +21,18 @@ def validate_ticket(ticket, cas_server_url, service_url):
     """
     validate_url = '%s/serviceValidate?service=%s&ticket=%s' % (
         cas_server_url,
-        urllib.quote(service_url),
+        six.moves.urllib.parse.quote(service_url),
         ticket,
     )
 
     try:
-        resp = urllib2.urlopen(validate_url)
-    except urllib2.HTTPError as e:
+        resp = six.moves.urllib.request.urlopen(validate_url)
+    except six.moves.urllib.error.HTTPError as e:
         logger.warning("Ticket validation failed. Could not open url %s. "
                        "Staus code: %s, reason: %s", validate_url, e.code,
                        e.reason)
         return False
-    except urllib2.URLError as e:
+    except six.moves.urllib.error.URLError as e:
         logger.warning("Ticket validation failed. Could not open url %s. "
                        "Reason: %s", validate_url, e.reason)
         return False
@@ -92,7 +92,7 @@ def strip_ticket(url):
     """
     scheme, netloc, path, query, fragment = urlsplit(url)
     # Using parse_qsl here to preserve order
-    qs_params = filter(lambda (k, v): k != 'ticket', parse_qsl(query))
+    qs_params = [k_v for k_v in parse_qsl(query) if k_v[0] != 'ticket']
     query = urlencode(qs_params)
     new_url = urlunsplit((scheme, netloc, path, query, fragment))
     return new_url
