@@ -1,6 +1,7 @@
 from datetime import datetime
 from DateTime import DateTime
 from ftw.casauth.testing import FTW_CASAUTH_INTEGRATION_TESTING
+from ftw.casauth.testing import PLONE_VERSION
 from ftw.testbrowser import browsing
 from ftw.testing import freeze
 from mock import patch
@@ -48,6 +49,8 @@ class TestCASLogin(unittest.TestCase):
         self.assertEqual(
             browser.json[u'error'][u'type'], u'Login failed')
 
+    @unittest.skipIf(PLONE_VERSION > (5, 2, 0),
+                     "This test doesn't work with Plone >= 5.2")
     @browsing
     def test_missing_cas_plugin_returns_501(self, browser):
         self.portal.acl_users._delOb('cas_auth')
@@ -66,6 +69,8 @@ class TestCASLogin(unittest.TestCase):
             browser.json[u'error'][u'message'],
             u'CAS authentication plugin not installed.')
 
+    @unittest.skipIf(PLONE_VERSION > (5, 2, 0),
+                     "This test doesn't work with Plone >= 5.2")
     @browsing
     def test_missing_jwt_plugin_returns_501(self, browser):
         self.portal.acl_users._delOb('jwt_auth')
