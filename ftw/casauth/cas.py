@@ -1,13 +1,15 @@
 from logging import getLogger
-from six.moves.urllib.parse import urlencode
+from six.moves.urllib.error import HTTPError
+from six.moves.urllib.error import URLError
 from six.moves.urllib.parse import parse_qsl
+from six.moves.urllib.parse import quote
+from six.moves.urllib.parse import urlencode
 from six.moves.urllib.parse import urlsplit
 from six.moves.urllib.parse import urlunsplit
+from six.moves.urllib.request import urlopen
 from xml.dom.minidom import parseString
 from xml.parsers.expat import ExpatError
 
-import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
-import six.moves.urllib.request, six.moves.urllib.error, six.moves.urllib.parse
 import ssl
 
 
@@ -21,18 +23,18 @@ def validate_ticket(ticket, cas_server_url, service_url):
     """
     validate_url = '%s/serviceValidate?service=%s&ticket=%s' % (
         cas_server_url,
-        six.moves.urllib.parse.quote(service_url),
+        quote(service_url),
         ticket,
     )
 
     try:
-        resp = six.moves.urllib.request.urlopen(validate_url)
-    except six.moves.urllib.error.HTTPError as e:
+        resp = urlopen(validate_url)
+    except HTTPError as e:
         logger.warning("Ticket validation failed. Could not open url %s. "
                        "Staus code: %s, reason: %s", validate_url, e.code,
                        e.reason)
         return False
-    except six.moves.urllib.error.URLError as e:
+    except URLError as e:
         logger.warning("Ticket validation failed. Could not open url %s. "
                        "Reason: %s", validate_url, e.reason)
         return False

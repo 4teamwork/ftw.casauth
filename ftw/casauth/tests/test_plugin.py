@@ -10,6 +10,7 @@ from plone.app.testing import TEST_USER_ID
 from Products.CMFCore.utils import getToolByName
 from six.moves.urllib.parse import urlencode
 from zope.component.hooks import getSite
+
 import unittest
 
 

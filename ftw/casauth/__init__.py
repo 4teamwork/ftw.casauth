@@ -1,6 +1,6 @@
 from AccessControl.Permissions import add_user_folders
-from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin
 from ftw.casauth import plugin
+from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin  # noqa
 
 
 def initialize(context):
