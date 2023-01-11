@@ -15,7 +15,7 @@ from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from six.moves.urllib.parse import quote
 from zope.component.hooks import getSite
 from zope.event import notify
-from zope.interface import implements
+from zope.interface import implementer
 
 
 manage_addCASAuthenticationPlugin = PageTemplateFile(
@@ -37,14 +37,10 @@ def addCASAuthenticationPlugin(self, id_, title=None, cas_server_url=None,
         )
 
 
+@implementer(IAuthenticationPlugin, IChallengePlugin, IExtractionPlugin)
 class CASAuthenticationPlugin(BasePlugin):
     """Plone PAS plugin for authentication against a CAS server.
     """
-    implements(
-        IAuthenticationPlugin,
-        IChallengePlugin,
-        IExtractionPlugin,
-    )
     meta_type = "CAS Authentication Plugin"
     security = ClassSecurityInfo()
 
