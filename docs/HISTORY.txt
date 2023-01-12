@@ -4,7 +4,7 @@ Changelog
 1.4.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add Support for Python 3 and Plone 5.2. [lgraf]
 
 
 1.4.2 (2021-09-13)
