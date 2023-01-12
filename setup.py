@@ -15,6 +15,7 @@ tests_require = [
 install_requires = [
     'Plone',
     'setuptools',
+    'six >= 1.12.0',
 ]
 
 
