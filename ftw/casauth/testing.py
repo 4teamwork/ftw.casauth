@@ -6,7 +6,11 @@ from plone.app.testing import IntegrationTesting
 from plone.app.testing import PLONE_FIXTURE
 from plone.app.testing import PloneSandboxLayer
 from plone.testing import z2
+from Products.CMFPlone.utils import getFSVersionTuple
 from zope.configuration import xmlconfig
+
+
+PLONE_VERSION = getFSVersionTuple()
 
 
 class FtwCasauthLayer(PloneSandboxLayer):

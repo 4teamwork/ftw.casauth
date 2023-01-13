@@ -1,6 +1,8 @@
 from ftw.casauth.testing import FTW_CASAUTH_FUNCTIONAL_TESTING
-from plone.app.testing import TEST_USER_NAME, TEST_USER_ID, TEST_USER_PASSWORD
 from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
+from plone.app.testing import TEST_USER_NAME
+from plone.app.testing import TEST_USER_PASSWORD
 from plone.testing.z2 import Browser
 
 import unittest

@@ -24,7 +24,7 @@ class CASLogin(Service):
         if 'service' in data:
             service = data['service']
         else:
-            service = service_url(self.request)[:-10],  # Strip `/@caslogin`
+            service = service_url(self.request)[:-10]  # Strip `/@caslogin`
 
         set_cookie = data.get('set_cookie', False)
 

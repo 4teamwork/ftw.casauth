@@ -15,6 +15,7 @@ tests_require = [
 install_requires = [
     'Plone',
     'setuptools',
+    'six >= 1.12.0',
 ]
 
 
@@ -28,8 +29,10 @@ setup(
         'Framework :: Plone',
         'Framework :: Plone :: 4.3',
         'Framework :: Plone :: 5.1',
+        'Framework :: Plone :: 5.2',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.8',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],

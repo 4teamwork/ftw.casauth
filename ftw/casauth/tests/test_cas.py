@@ -9,7 +9,7 @@ import unittest
 
 class TestValdidateTicket(unittest.TestCase):
 
-    @patch('ftw.casauth.cas.urllib2.urlopen')
+    @patch('ftw.casauth.cas.urlopen')
     def test_validate_ticket_suceeds_with_valid_ticket(self, urlopen_mock):
         urlopen_mock.return_value = MockResponse(
             get_data('service_validate_success.xml'))
@@ -18,7 +18,7 @@ class TestValdidateTicket(unittest.TestCase):
             'https://cas.domain.net',
             'https://service.domain.net'))
 
-    @patch('ftw.casauth.cas.urllib2.urlopen')
+    @patch('ftw.casauth.cas.urlopen')
     def test_validate_ticket_fails_with_invalid_ticket(self, urlopen_mock):
         urlopen_mock.return_value = MockResponse(
             get_data('service_validate_invalid_ticket.xml'))
@@ -27,7 +27,7 @@ class TestValdidateTicket(unittest.TestCase):
             'https://cas.domain.net',
             'https://service.domain.net'))
 
-    @patch('ftw.casauth.cas.urllib2.urlopen')
+    @patch('ftw.casauth.cas.urlopen')
     def test_validate_ticket_fails_with_invalid_response(self, urlopen_mock):
         urlopen_mock.return_value = MockResponse("Invalid Response")
         self.assertFalse(validate_ticket(
@@ -35,7 +35,7 @@ class TestValdidateTicket(unittest.TestCase):
             'https://cas.domain.net',
             'https://service.domain.net'))
 
-    @patch('ftw.casauth.cas.urllib2.urlopen')
+    @patch('ftw.casauth.cas.urlopen')
     def test_validate_ticket_fails_with_invalid_xml_response(self, urlopen_mock):
         urlopen_mock.return_value = MockResponse("<resp>invalid</resp>")
         self.assertFalse(validate_ticket(
