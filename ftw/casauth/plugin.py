@@ -105,26 +105,27 @@ class CASAuthenticationPlugin(BasePlugin):
         if extractor != self.getId():
             return None
 
-        userid = validate_ticket(
+        username = validate_ticket(
             credentials['ticket'],
             self.cas_server_url,
             credentials['service_url'],
         )
-        if not userid:
+        if not username:
             return None
+
+        pas = self._getPAS()
+        info = pas._verifyUser(pas.plugins, login=username)
+        if info is None:
+            return None
+        userid = info['id']
 
         result = self.login_user(userid)
         if not result:
             return None
 
-        return userid, userid
+        return userid, username
 
     def handle_login(self, userid):
-        pas = self._getPAS()
-        info = pas._verifyUser(pas.plugins, user_id=userid)
-        if info is None:
-            return None
-
         mtool = getToolByName(getSite(), 'portal_membership')
         member = mtool.getMemberById(userid)
         if member is None:

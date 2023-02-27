@@ -7,6 +7,7 @@ from ftw.testing import freeze
 from mock import patch
 from plone import api
 from plone.app.testing import TEST_USER_ID
+from plone.app.testing import TEST_USER_NAME
 
 import json
 import unittest
@@ -92,7 +93,7 @@ class TestCASLogin(unittest.TestCase):
     @browsing
     def test_valid_ticket_returns_jwt_token(self, browser):
         with patch('ftw.casauth.restapi.caslogin.validate_ticket') as mock:
-            mock.return_value = TEST_USER_ID
+            mock.return_value = TEST_USER_NAME
             browser.open(
                 self.portal.absolute_url() + '/@caslogin',
                 data=json.dumps({
@@ -108,7 +109,7 @@ class TestCASLogin(unittest.TestCase):
     @browsing
     def test_returns_ac_cookie_if_requested(self, browser):
         with patch('ftw.casauth.restapi.caslogin.validate_ticket') as mock:
-            mock.return_value = TEST_USER_ID
+            mock.return_value = TEST_USER_NAME
             browser.open(
                 self.portal.absolute_url() + '/@caslogin',
                 data=json.dumps({
@@ -127,7 +128,7 @@ class TestCASLogin(unittest.TestCase):
     @browsing
     def test_accepts_service_url_from_body(self, browser):
         with patch('ftw.casauth.restapi.caslogin.validate_ticket') as mock:
-            mock.return_value = TEST_USER_ID
+            mock.return_value = TEST_USER_NAME
             browser.open(
                 self.portal.absolute_url() + '/@caslogin',
                 data=json.dumps({
@@ -146,7 +147,7 @@ class TestCASLogin(unittest.TestCase):
     @browsing
     def test_sets_login_times_when_success(self, browser):
         with patch('ftw.casauth.restapi.caslogin.validate_ticket') as mock:
-            mock.return_value = TEST_USER_ID
+            mock.return_value = TEST_USER_NAME
             with freeze(datetime(2016, 2, 12, 16, 40)):
                 browser.open(
                     self.portal.absolute_url() + '/@caslogin',

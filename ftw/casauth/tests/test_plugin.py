@@ -7,6 +7,7 @@ from ftw.casauth.testing import PLONE_VERSION
 from ftw.testing import freeze
 from mock import patch
 from plone.app.testing import TEST_USER_ID
+from plone.app.testing import TEST_USER_NAME
 from Products.CMFCore.utils import getToolByName
 from six.moves.urllib.parse import urlencode
 from zope.component.hooks import getSite
@@ -98,7 +99,7 @@ class TestCASAuthPlugin(unittest.TestCase):
 
     @patch('ftw.casauth.plugin.validate_ticket')
     def test_authenticate_credentials_succeeds_with_valid_credentials(self, mock_validate_ticket):
-        mock_validate_ticket.return_value = TEST_USER_ID
+        mock_validate_ticket.return_value = TEST_USER_NAME
         creds = {
             'extractor': self.plugin.getId(),
             'ticket': 'ST-001-abc',
@@ -108,7 +109,7 @@ class TestCASAuthPlugin(unittest.TestCase):
         self.plugin.REQUEST.RESPONSE = self.request.response
         userid, login = self.plugin.authenticateCredentials(creds)
         self.assertEqual(TEST_USER_ID, userid)
-        self.assertEqual(TEST_USER_ID, login)
+        self.assertEqual(TEST_USER_NAME, login)
 
     def test_authenticate_credentials_fails_with_wrong_extractor(self):
         creds = {
@@ -136,7 +137,7 @@ class TestCASAuthPlugin(unittest.TestCase):
     def test_sets_login_times_when_success(self, mock_validate_ticket):
         mtool = getToolByName(getSite(), 'portal_membership')
 
-        mock_validate_ticket.return_value = TEST_USER_ID
+        mock_validate_ticket.return_value = TEST_USER_NAME
         creds = {
             'extractor': self.plugin.getId(),
             'ticket': 'ST-001-abc',
@@ -153,7 +154,7 @@ class TestCASAuthPlugin(unittest.TestCase):
 
     @patch('ftw.casauth.plugin.validate_ticket')
     def test_expires_clipboard_when_success(self, mock_validate_ticket):
-        mock_validate_ticket.return_value = TEST_USER_ID
+        mock_validate_ticket.return_value = TEST_USER_NAME
         creds = {
             'extractor': self.plugin.getId(),
             'ticket': 'ST-001-abc',
