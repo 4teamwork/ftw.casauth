@@ -56,22 +56,28 @@ class CASLogin(Service):
                 type='Login failed',
                 message='JWT authentication plugin not installed.'))
 
-        userid = validate_ticket(
+        username = validate_ticket(
             data['ticket'],
             cas_plugin.cas_server_url,
             service,
         )
-
-        user = uf.getUserById(userid) if userid else None
-        if not user:
+        info = uf._verifyUser(uf.plugins, login=username)
+        if info is None:
             self.request.response.setStatus(401)
             return dict(error=dict(
                 type='Login failed',
-                message='User with userid {} not found.'.format(userid)))
+                message='User with username {} not found.'.format(username)))
+
+        userid = info['id']
+        user = uf.getUserById(userid)
 
         if set_cookie:
             cas_plugin.login_user(userid)
-            return {'userid': userid, 'fullname': user.getProperty('fullname')}
+            return {
+                'userid': userid,
+                'username': username,
+                'fullname': user.getProperty('fullname'),
+            }
         else:
             cas_plugin.handle_login(userid)
             payload = {'fullname': user.getProperty('fullname')}
