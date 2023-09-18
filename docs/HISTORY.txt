@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6.1 (unreleased)
+1.6.1 (2023-09-18)
 ------------------
 
 - Fix again login with invalid ticket using REST API, which could lead to
