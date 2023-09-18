@@ -61,7 +61,7 @@ class CASLogin(Service):
             cas_plugin.cas_server_url,
             service,
         )
-        info = uf._verifyUser(uf.plugins, login=username)
+        info = uf._verifyUser(uf.plugins, login=username) if username else None
         if info is None:
             self.request.response.setStatus(401)
             return dict(error=dict(
