@@ -4,7 +4,8 @@ Changelog
 1.6.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix again login with invalid ticket using REST API, which could lead to
+  authenticate the wrong user. Bug was reintroduced in 1.6.0. [buchi]
 
 
 1.6.0 (2023-08-15)
