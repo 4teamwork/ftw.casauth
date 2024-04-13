@@ -14,7 +14,7 @@
           <div class="form-help">e.g. https://cas.server.net</div>
           </td>
           <td><input type="text" name="cas_server_url"
-                     tal:attributes="value context/cas_server_url"/></td>
+                     tal:attributes="value context/stored_cas_server_url"/></td>
         </tr>
         <tr>
           <td colspan="2">

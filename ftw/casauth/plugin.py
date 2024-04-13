@@ -16,6 +16,7 @@ from six.moves.urllib.parse import quote
 from zope.component.hooks import getSite
 from zope.event import notify
 from zope.interface import implementer
+import os
 
 
 manage_addCASAuthenticationPlugin = PageTemplateFile(
@@ -59,7 +60,17 @@ class CASAuthenticationPlugin(BasePlugin):
         self.title = title
         if cas_server_url:
             cas_server_url = cas_server_url.rstrip('/')
-        self.cas_server_url = cas_server_url
+        self._cas_server_url = cas_server_url
+
+    @property
+    def cas_server_url(self):
+        # Migrate from cas_server_url to _cas_server_url
+        if 'cas_server_url' in self.__dict__:
+            self._cas_server_url = self.__dict__['cas_server_url']
+            del self.__dict__['cas_server_url']
+
+        cas_server_url = os.environ.get('FTW_CASAUTH_CAS_SERVER_URL', '')
+        return cas_server_url or self._cas_server_url
 
     security.declarePrivate('challenge')
 
@@ -182,7 +193,11 @@ class CASAuthenticationPlugin(BasePlugin):
         """
         response = REQUEST.response
 
-        self.cas_server_url = REQUEST.form.get('cas_server_url', '').rstrip('/')
+        self._cas_server_url = REQUEST.form.get('cas_server_url', '').rstrip('/')
 
         response.redirect('%s/manage_config?manage_tabs_message=%s' %
                           (self.absolute_url(), 'Configuration+updated.'))
+
+    @property
+    def stored_cas_server_url(self):
+        return getattr(self, '_cas_server_url', None)
