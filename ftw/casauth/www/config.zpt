@@ -16,6 +16,17 @@
           <td><input type="text" name="cas_server_url"
                      tal:attributes="value context/stored_cas_server_url"/></td>
         </tr>
+        <tr valign="top">
+          <td>
+            <div class="form-label">Internal CAS Server URL</div>
+            <div class="form-help">
+              If specified, this URL is used for validating services instead of
+              the (public) CAS server url.
+            </div>
+          </td>
+          <td><input type="text" name="internal_cas_server_url"
+                     tal:attributes="value context/stored_internal_cas_server_url"/></td>
+        </tr>
         <tr>
           <td colspan="2">
             <div class="form-element">

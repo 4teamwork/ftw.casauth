@@ -7,6 +7,8 @@ Changelog
 - Allow to configure the CAS server url with the environment variable
   FTW_CASAUTH_CAS_SERVER_URL. [buchi]
 
+- Add and use internal CAS server url for ticket validation. [buchi]
+
 
 1.6.1 (2023-09-18)
 ------------------

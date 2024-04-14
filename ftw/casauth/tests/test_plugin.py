@@ -32,6 +32,19 @@ class TestCASAuthPlugin(unittest.TestCase):
         self.assertEqual(self.plugin.cas_server_url, 'https://mycas.org')
         del os.environ['FTW_CASAUTH_CAS_SERVER_URL']
 
+    def test_get_internal_cas_server_url_returns_cas_server_url(self):
+        self.assertEqual(self.plugin.internal_cas_server_url, 'https://cas.domain.net')
+
+    def test_get_internal_cas_server_url_from_plugin(self):
+        self.plugin._internal_cas_server_url = 'http://localhost/cas'
+        self.assertEqual(self.plugin.internal_cas_server_url, 'http://localhost/cas')
+
+    def test_get_internal_cas_server_url_from_env(self):
+        os.environ['FTW_CASAUTH_INTERNAL_CAS_SERVER_URL'] = 'http://10.10.10.10'
+        self.plugin._internal_cas_server_url = 'http://localhost/cas'
+        self.assertEqual(self.plugin.internal_cas_server_url, 'http://10.10.10.10')
+        del os.environ['FTW_CASAUTH_INTERNAL_CAS_SERVER_URL']
+
     def test_challenge_redirects_to_cas(self):
         response = self.request.response
         self.assertTrue(self.plugin.challenge(self.request, response))

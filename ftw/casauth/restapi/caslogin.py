@@ -58,7 +58,7 @@ class CASLogin(Service):
 
         username = validate_ticket(
             data['ticket'],
-            cas_plugin.cas_server_url,
+            cas_plugin.internal_cas_server_url,
             service,
         )
         info = uf._verifyUser(uf.plugins, login=username) if username else None
