@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.6.2 (unreleased)
+1.7.0 (2024-04-19)
 ------------------
 
 - Allow to configure the CAS server url with the environment variable
