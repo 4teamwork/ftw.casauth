@@ -12,6 +12,7 @@ from Products.CMFCore.utils import getToolByName
 from six.moves.urllib.parse import urlencode
 from zope.component.hooks import getSite
 
+import os
 import unittest
 
 
@@ -22,6 +23,27 @@ class TestCASAuthPlugin(unittest.TestCase):
     def setUp(self):
         self.plugin = self.layer['plugin']
         self.request = self.layer['request']
+
+    def test_get_cas_server_url_from_plugin(self):
+        self.assertEqual(self.plugin.cas_server_url, 'https://cas.domain.net')
+
+    def test_get_cas_server_url_from_env(self):
+        os.environ['FTW_CASAUTH_CAS_SERVER_URL'] = 'https://mycas.org'
+        self.assertEqual(self.plugin.cas_server_url, 'https://mycas.org')
+        del os.environ['FTW_CASAUTH_CAS_SERVER_URL']
+
+    def test_get_internal_cas_server_url_returns_cas_server_url(self):
+        self.assertEqual(self.plugin.internal_cas_server_url, 'https://cas.domain.net')
+
+    def test_get_internal_cas_server_url_from_plugin(self):
+        self.plugin._internal_cas_server_url = 'http://localhost/cas'
+        self.assertEqual(self.plugin.internal_cas_server_url, 'http://localhost/cas')
+
+    def test_get_internal_cas_server_url_from_env(self):
+        os.environ['FTW_CASAUTH_INTERNAL_CAS_SERVER_URL'] = 'http://10.10.10.10'
+        self.plugin._internal_cas_server_url = 'http://localhost/cas'
+        self.assertEqual(self.plugin.internal_cas_server_url, 'http://10.10.10.10')
+        del os.environ['FTW_CASAUTH_INTERNAL_CAS_SERVER_URL']
 
     def test_challenge_redirects_to_cas(self):
         response = self.request.response
@@ -51,7 +73,7 @@ class TestCASAuthPlugin(unittest.TestCase):
             response.getHeader('Location'))
 
     def test_challenge_doesnt_redirect_with_missing_cas_server_url(self):
-        self.plugin.cas_server_url = None
+        self.plugin._cas_server_url = None
         response = self.request.response
         self.assertFalse(self.plugin.challenge(self.request, response))
 
