@@ -80,7 +80,7 @@ class CASAuthenticationPlugin(BasePlugin):
             'FTW_CASAUTH_INTERNAL_CAS_SERVER_URL', '')
         return (
             internal_cas_server_url
-            or self._internal_cas_server_url
+            or getattr(self, '_internal_cas_server_url', None)
             or self.cas_server_url
         )
 
