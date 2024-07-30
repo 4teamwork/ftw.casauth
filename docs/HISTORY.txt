@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.7.1 (unreleased)
+1.7.1 (2024-07-30)
 ------------------
 
 - Fix getting internal CAS server url if plugin was installed with version < 1.7.0. [buchi]
